@@ -1,0 +1,39 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Concert {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  date        DateTime
+  tickets     Ticket[]  // relación: un Concierto tiene muchos Tickets
+}
+
+model Ticket {
+  id         Int       @id @default(autoincrement())
+  concert    Concert   @relation(fields: [concertId], references: [id])
+  concertId  Int
+
+  purchaser  String
+  price      Float     // nuevo campo agregado
+
+  // — RELACIÓN CON USER —
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     Int?      // <- hacemos esto opcional
+
+  createdAt  DateTime  @default(now())
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+
+  tickets   Ticket[]  // relación: un User tiene muchos Tickets
+}
